@@ -1,24 +1,101 @@
-console.log("GitHub Pages Compatible Music Player - Dynamic JSON Loading");
+console.log("GitHub Pages Static Music Player");
 
 let currentSong = new Audio();
 let Songs = [];
 let currFolder;
-let ALBUMS = {}; // Will be populated dynamically
 
-// List of your album folders - update this array with your actual folder names
-const ALBUM_FOLDERS = [
-  "Angry_(mood)",
-  "Bright_(mood)", 
-  "Chill_(mood)",
-  "cs",
-  "Dark_(mood)",
-  "Diljit",
-  "Funky_(mood)",
-  "karan aujla",
-  "Love_(mood)",
-  "ncs",
-  "Uplifting_(mood)"
-];
+// Static album data - manually configure your albums here
+const ALBUMS = {
+  "Angry_(mood)": {
+    title: "Angry Mood",
+    description: "Calm your Anger",
+    cover: "Songs/Angry_(mood)/cover.jpg",
+    songs: [
+      "BhoolBhulaiyaa.mp3"
+      // Add more songs here as you have them
+    ]
+  },
+  "Bright_(mood)": {
+    title: "Bright Mood", 
+    description: "Uplifting vibes",
+    cover: "Songs/Bright_(mood)/cover.jpg",
+    songs: [
+      // Add your songs here
+    ]
+  },
+  "Chill_(mood)": {
+    title: "Chill Mood",
+    description: "Relaxing music",
+    cover: "Songs/Chill_(mood)/cover.jpg", 
+    songs: [
+      // Add your songs here
+    ]
+  },
+  "cs": {
+    title: "CS",
+    description: "Music collection",
+    cover: "Songs/cs/cover.jpg",
+    songs: [
+      // Add your songs here
+    ]
+  },
+  "Dark_(mood)": {
+    title: "Dark Mood",
+    description: "Dark vibes",
+    cover: "Songs/Dark_(mood)/cover.jpg",
+    songs: [
+      // Add your songs here
+    ]
+  },
+  "Diljit": {
+    title: "Diljit",
+    description: "Diljit Dosanjh songs",
+    cover: "Songs/Diljit/cover.jpg",
+    songs: [
+      // Add your songs here
+    ]
+  },
+  "Funky_(mood)": {
+    title: "Funky Mood",
+    description: "Funky beats",
+    cover: "Songs/Funky_(mood)/cover.jpg",
+    songs: [
+      // Add your songs here
+    ]
+  },
+  "karan aujla": {
+    title: "Karan Aujla",
+    description: "Karan Aujla hits",
+    cover: "Songs/karan aujla/cover.jpg",
+    songs: [
+      // Add your songs here
+    ]
+  },
+  "Love_(mood)": {
+    title: "Love Mood",
+    description: "Romantic songs",
+    cover: "Songs/Love_(mood)/cover.jpg",
+    songs: [
+      // Add your songs here
+    ]
+  },
+  "ncs": {
+    title: "NCS",
+    description: "No Copyright Sounds",
+    cover: "Songs/ncs/cover.jpg",
+    songs: [
+      // Add your NCS songs here
+    ]
+  },
+  "Uplifting_(mood)": {
+    title: "Uplifting Mood",
+    description: "Feel good music",
+    cover: "Songs/Uplifting_(mood)/cover.jpg",
+    songs: [
+      // Add your songs here
+    ]
+  }
+};
 
 function secondsToMinutesSeconds(seconds) {
   if (isNaN(seconds) || seconds < 0) {
@@ -34,61 +111,29 @@ function secondsToMinutesSeconds(seconds) {
   return `${formattedMinutes}:${formattedSeconds}`;
 }
 
-async function loadAlbumData() {
-  console.log("Loading album data...");
-  
-  for (const folder of ALBUM_FOLDERS) {
-    try {
-      // Try to fetch the info.json file
-      const response = await fetch(`Songs/${folder}/info.json`);
-      if (response.ok) {
-        const albumInfo = await response.json();
-        ALBUMS[folder] = {
-          title: albumInfo.title || folder.replace(/_/g, ' '),
-          description: albumInfo.description || "Music Collection",
-          cover: `Songs/${folder}/cover.jpg`,
-          songs: albumInfo.tracks || []
-        };
-        console.log(`Loaded album: ${folder}`, ALBUMS[folder]);
-      } else {
-        console.warn(`Could not load info.json for ${folder}, using default data`);
-        // Fallback if info.json doesn't exist
-        ALBUMS[folder] = {
-          title: folder.replace(/_/g, ' '),
-          description: "Music Collection",
-          cover: `Songs/${folder}/cover.jpg`,
-          songs: [] // Will need to be manually filled
-        };
-      }
-    } catch (error) {
-      console.error(`Error loading album data for ${folder}:`, error);
-      // Fallback data
-      ALBUMS[folder] = {
-        title: folder.replace(/_/g, ' '),
-        description: "Music Collection", 
-        cover: `Songs/${folder}/cover.jpg`,
-        songs: []
-      };
-    }
-  }
-}
-
 function getSongs(folder) {
   currFolder = folder;
   
-  // Get songs from loaded album data
+  // Get songs from static album data
   const albumKey = folder.replace('Songs/', '');
   if (ALBUMS[albumKey]) {
     Songs = ALBUMS[albumKey].songs;
+    console.log(`Loaded ${Songs.length} songs for ${albumKey}`);
   } else {
     Songs = [];
-    console.error(`Album ${albumKey} not found in loaded data`);
+    console.error(`Album ${albumKey} not found in ALBUMS data`);
   }
 
   // Show all the Songs in the playlist
   let songUL = document.querySelector(".songList")?.getElementsByTagName("ul")[0];
   if (songUL) {
     songUL.innerHTML = "";
+    
+    if (Songs.length === 0) {
+      songUL.innerHTML = "<li><div class='info'><div>No songs available in this album</div></div></li>";
+      return Songs;
+    }
+    
     for (const song of Songs) {
       songUL.innerHTML = songUL.innerHTML + 
         `<li><img class="invert" width="34" src="Images/music.svg" alt="">
@@ -105,10 +150,13 @@ function getSongs(folder) {
 
     // Attach an event listener to each song
     Array.from(songUL.getElementsByTagName("li")).forEach((e) => {
-      e.addEventListener("click", () => {
-        const songName = e.querySelector(".info").firstElementChild.innerHTML.trim();
-        playMusic(songName);
-      });
+      const songInfo = e.querySelector(".info div");
+      if (songInfo && songInfo.innerHTML !== "No songs available in this album") {
+        e.addEventListener("click", () => {
+          const songName = songInfo.innerHTML.trim();
+          playMusic(songName);
+        });
+      }
     });
   }
 
@@ -116,21 +164,28 @@ function getSongs(folder) {
 }
 
 const playMusic = (track, pause = false) => {
-  // Construct the path to your songs
-  currentSong.src = `Songs/${currFolder.replace('Songs/', '')}/${track}`;
+  // Remove 'Songs/' prefix if it exists in currFolder
+  const folderPath = currFolder.startsWith('Songs/') ? currFolder : `Songs/${currFolder}`;
+  currentSong.src = `${folderPath}/${track}`;
   
-  console.log("Trying to play:", currentSong.src);
+  console.log("Attempting to play:", currentSong.src);
   
   if (!pause) {
-    currentSong.play().catch(error => {
+    // Add user interaction check
+    currentSong.play().then(() => {
+      console.log("Audio playing successfully");
+      const playButton = document.getElementById("play");
+      if (playButton) {
+        playButton.src = "Images/pause.svg";
+      }
+    }).catch(error => {
       console.error("Error playing audio:", error);
-      alert(`Could not play "${track}". Please check if the file exists and is accessible.`);
+      if (error.name === 'NotAllowedError') {
+        alert("Please click on the page first to enable audio playback, then try again.");
+      } else {
+        alert(`Could not play "${track}". Error: ${error.message}`);
+      }
     });
-    
-    const playButton = document.getElementById("play");
-    if (playButton) {
-      playButton.src = "Images/pause.svg";
-    }
   }
   
   const songInfo = document.querySelector(".songinfo");
@@ -149,21 +204,31 @@ function displayAlbums() {
   
   const cardContainer = document.querySelector(".bigcard");
   if (!cardContainer) {
-    console.error("Card container not found");
+    console.error("Card container (.bigcard) not found in HTML");
     return;
   }
   
   cardContainer.innerHTML = "";
   
-  // Use loaded album data
-  for (const [folderName, albumData] of Object.entries(ALBUMS)) {
+  // Filter out albums with no songs for display
+  const albumsWithSongs = Object.entries(ALBUMS).filter(([key, album]) => album.songs.length > 0);
+  
+  if (albumsWithSongs.length === 0) {
+    cardContainer.innerHTML = "<p>No albums with songs found. Please add songs to the ALBUMS object.</p>";
+    return;
+  }
+  
+  for (const [folderName, albumData] of albumsWithSongs) {
     cardContainer.innerHTML = cardContainer.innerHTML + 
       `<div class="cardContainer">
         <div data-folder="${folderName}" class="card">
           <div class="play-button"></div>
-          <img src="${albumData.cover}" alt="${albumData.title}" onerror="this.src='Images/default-cover.jpg'">
+          <img src="${albumData.cover}" alt="${albumData.title}" 
+               onerror="this.src='Images/default-cover.jpg'" 
+               style="width: 100%; height: 200px; object-fit: cover;">
           <h2>${albumData.title}</h2>
           <p>${albumData.description}</p>
+          <small>${albumData.songs.length} songs</small>
         </div>
       </div>`;
   }
@@ -173,48 +238,56 @@ function displayAlbums() {
     e.addEventListener("click", (item) => {
       const folderName = item.currentTarget.dataset.folder;
       console.log("Loading Songs for folder:", folderName);
-      Songs = getSongs(`Songs/${folderName}`);
+      Songs = getSongs(folderName);
       if (Songs.length > 0) {
         playMusic(Songs[0]);
       } else {
         console.warn(`No songs found for ${folderName}`);
-        alert(`No songs found for "${ALBUMS[folderName]?.title || folderName}". Please check the tracks in info.json.`);
+        alert(`No songs available in "${ALBUMS[folderName]?.title || folderName}".`);
       }
     });
   });
 }
 
-async function main() {
+function initializePlayer() {
   console.log("Initializing music player...");
   
-  // First load all album data
-  await loadAlbumData();
+  // Find first album with songs
+  const firstAlbumWithSongs = Object.entries(ALBUMS).find(([key, album]) => album.songs.length > 0);
   
-  // Initialize with first available album
-  const firstAlbum = Object.keys(ALBUMS)[0];
-  if (firstAlbum) {
-    getSongs(`Songs/${firstAlbum}`);
+  if (firstAlbumWithSongs) {
+    const [folderName] = firstAlbumWithSongs;
+    getSongs(folderName);
     if (Songs.length > 0) {
       playMusic(Songs[0], true);
     }
+  } else {
+    console.warn("No albums with songs found");
   }
 
   // Display all the albums on the page
   displayAlbums();
+}
 
+function setupEventListeners() {
   // Get UI elements with error checking
   const playButton = document.getElementById("play");
   const previousButton = document.getElementById("previous");
   const nextButton = document.getElementById("next");
 
+  if (!playButton) console.warn("Play button (#play) not found");
+  if (!previousButton) console.warn("Previous button (#previous) not found");
+  if (!nextButton) console.warn("Next button (#next) not found");
+
   // Attach an event listener to play button
   if (playButton) {
     playButton.addEventListener("click", () => {
       if (currentSong.paused) {
-        currentSong.play().catch(error => {
+        currentSong.play().then(() => {
+          playButton.src = "Images/pause.svg";
+        }).catch(error => {
           console.error("Error playing audio:", error);
         });
-        playButton.src = "Images/pause.svg";
       } else {
         currentSong.pause();
         playButton.src = "Images/play.svg";
@@ -240,12 +313,14 @@ async function main() {
   const seekbar = document.querySelector(".seekbar");
   if (seekbar) {
     seekbar.addEventListener("click", (e) => {
-      let percent = (e.offsetX / e.target.getBoundingClientRect().width) * 100;
-      const circle = document.querySelector(".circle");
-      if (circle) {
-        circle.style.left = percent + "%";
+      if (currentSong.duration) {
+        let percent = (e.offsetX / e.target.getBoundingClientRect().width) * 100;
+        const circle = document.querySelector(".circle");
+        if (circle) {
+          circle.style.left = percent + "%";
+        }
+        currentSong.currentTime = (currentSong.duration * percent) / 100;
       }
-      currentSong.currentTime = (currentSong.duration * percent) / 100;
     });
   }
 
@@ -274,6 +349,8 @@ async function main() {
   // Add an event listener to previous
   if (previousButton) {
     previousButton.addEventListener("click", () => {
+      if (Songs.length === 0) return;
+      
       currentSong.pause();
       console.log("Previous clicked");
       
@@ -283,7 +360,6 @@ async function main() {
       if (index - 1 >= 0) {
         playMusic(Songs[index - 1]);
       } else if (Songs.length > 0) {
-        // Loop to last song
         playMusic(Songs[Songs.length - 1]);
       }
     });
@@ -292,6 +368,8 @@ async function main() {
   // Add an event listener to next
   if (nextButton) {
     nextButton.addEventListener("click", () => {
+      if (Songs.length === 0) return;
+      
       currentSong.pause();
       console.log("Next clicked");
 
@@ -301,7 +379,6 @@ async function main() {
       if (index + 1 < Songs.length) {
         playMusic(Songs[index + 1]);
       } else if (Songs.length > 0) {
-        // Loop to first song
         playMusic(Songs[0]);
       }
     });
@@ -343,15 +420,36 @@ async function main() {
   currentSong.addEventListener("error", (e) => {
     console.error("Audio loading error:", e);
     const songName = currentSong.src.split("/").slice(-1)[0];
-    alert(`Could not load "${songName}". Please check if the file exists and is in the correct format.`);
+    alert(`Could not load "${songName}". Please check if the file exists and is accessible.`);
   });
 
   // Auto-play next song when current song ends
   currentSong.addEventListener("ended", () => {
-    if (nextButton) {
+    if (nextButton && Songs.length > 1) {
       nextButton.click();
     }
   });
+
+  // Handle loading state
+  currentSong.addEventListener("loadstart", () => {
+    console.log("Started loading audio");
+  });
+
+  currentSong.addEventListener("canplay", () => {
+    console.log("Audio can start playing");
+  });
+}
+
+async function main() {
+  console.log("Starting main function...");
+  
+  // Initialize the player
+  initializePlayer();
+  
+  // Setup all event listeners
+  setupEventListeners();
+  
+  console.log("Music player initialized successfully!");
 }
 
 // Wait for DOM to be ready
