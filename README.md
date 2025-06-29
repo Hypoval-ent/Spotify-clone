@@ -12,12 +12,12 @@ A responsive, front-end-only music player inspired by Spotify — built using ju
   - Mute / Unmute toggle
   - "Now Playing" song display
 - 📱 **Responsive Design**: Optimized to look great on devices of all screen sizes.
-  
+
 ## 🛠 Tech Stack
 
-- **HTML5**
-- **CSS3**
-- **JavaScript (ES6+)**
+- **HTML**
+- **CSS**
+- **JavaScript**
 - **LocalStorage** for storing album & song data
 
 ## 🚀 How to Run Locally
@@ -39,13 +39,32 @@ A responsive, front-end-only music player inspired by Spotify — built using ju
 ## 📂 Folder Structure
 
 ```
-mini-spotify-clone/
+SPOTIFYCLONE/
+├── CSS/
+│   ├── style.css
+│   └── utility.css
+├── JavaScript/
+│   └── new.js
+├── Images/
+├── Songs/
+│   ├── Angry_(mood)/
+│   │   ├── BhoolBhulaiyaa.mp3
+│   │   ├── cover.jpg
+│   │   └── info.json
+│   ├── Bright_(mood)/
+│   ├── Chill_(mood)/
+│   ├── Dark_(mood)/
+│   ├── Diljit/
+│   ├── Funky_(mood)/
+│   ├── karan_aujla/
+│   ├── Love_(mood)/
+│   ├── Uplifting_(mood)/
+│   └── ncs/
+├── .htaccess
+├── .hintrc
+├── favicon.ico
 ├── index.html
-├── style.css
-├── script.js
-├── assets/
-│   ├── songs/
-│   └── album-covers/
+└── README.md
 ```
 
 ## 📌 Limitations
